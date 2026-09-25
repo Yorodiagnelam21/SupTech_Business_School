@@ -1,0 +1,412 @@
+/* ============================================================
+   Styles personnalisés - SupTech Gestion Académique
+   ============================================================ */
+
+:root {
+    --primary-color: #1e3c72;
+    --secondary-color: #2a5298;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --sidebar-bg: #f8f9fa;
+
+    /* Thème clair (par défaut) */
+    --bg-body: #ffffff;
+    --text-body: #212529;
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --sidebar-bg: #1f242b;
+    --bg-body: #14171c;
+    --text-body: #e6e6e6;
+    --card-bg: #1c2128;
+    --card-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-body);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .table {
+    background-color: var(--card-bg);
+    color: var(--text-body);
+    border-color: var(--card-border);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--card-bg);
+    color: var(--text-body);
+    border-color: var(--card-border);
+}
+
+/* Classes utilitaires Bootstrap utilisées directement dans le HTML
+   (bg-white / bg-light ont !important côté Bootstrap, il faut donc
+   les cibler explicitement, pas seulement .card/.table) */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-light,
+[data-theme="dark"] .table-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-body) !important;
+}
+
+[data-theme="dark"] .sidebar {
+    background-color: var(--sidebar-bg) !important;
+}
+
+[data-theme="dark"] .sidebar .nav-link {
+    color: var(--text-body);
+}
+
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .card-footer,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg);
+    color: var(--text-body);
+    border-color: var(--card-border);
+}
+
+[data-theme="dark"] .text-muted {
+    color: #9a9a9a !important;
+}
+
+/* ============================================================
+   Navbar Styles
+   ============================================================ */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.1);
+}
+
+.navbar-toggler {
+    display: block !important;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ffffff !important;
+    transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.02);
+}
+
+.navbar-dark .nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.2s ease;
+}
+
+.navbar-dark .nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   Sidebar Styles
+   ============================================================ */
+
+.sidebar {
+    position: fixed !important;
+    top: 72px;
+    right: 12px;
+    left: auto;
+    width: min(300px, calc(100vw - 24px));
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    background-color: var(--sidebar-bg);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    padding-top: 0;
+    z-index: 2100;
+    max-width: 100%;
+}
+
+.sidebar .position-sticky {
+    top: 0 !important;
+}
+
+.sidebar .nav {
+    width: 100%;
+}
+
+.sidebar .nav-link {
+    color: #495057;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(30, 60, 114, 0.1);
+    border-left-color: var(--primary-color);
+    padding-left: 1.25rem;
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar .nav-link.text-danger:hover {
+    color: var(--danger-color) !important;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* ============================================================
+   Boutons de contrôle (Dashboard + Logout)
+   ============================================================ */
+
+.sidebar .btn {
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.sidebar .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.sidebar .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+}
+
+.sidebar .btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.sidebar .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    background-color: #c82333;
+}
+
+/* ============================================================
+   Boutons Navbar
+   ============================================================ */
+
+.navbar .navbar-nav {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar .nav-item .btn {
+    font-size: 0.85rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.navbar .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.navbar .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.navbar .btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.navbar .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+    color: white;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* ============================================================
+   Main Content
+   ============================================================ */
+
+main {
+    margin-left: 0;
+    margin-top: 0;
+    min-height: calc(100vh - 56px);
+    background-color: #ffffff;
+    width: auto;
+    max-width: 100%;
+}
+
+.container-fluid > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* ============================================================
+   Container et Spacing
+   ============================================================ */
+
+.container-fluid {
+    padding: 2rem;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+        top: 72px;
+        right: 12px;
+        left: auto;
+        width: min(300px, calc(100vw - 24px));
+        border-right: none;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin-top: 0;
+        padding-top: 1rem;
+    }
+
+    main {
+        margin-left: 0;
+        margin-top: 0;
+    }
+
+    .sidebar .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* ============================================================
+   Cards et Badges
+   ============================================================ */
+
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ============================================================
+   Alerts
+   ============================================================ */
+
+.alert {
+    border-radius: 6px;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #0c5460;
+}
+
+/* ============================================================
+   Tables
+   ============================================================ */
+
+.table {
+    background-color: #ffffff;
+}
+
+.table thead th {
+    background-color: var(--sidebar-bg);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(30, 60, 114, 0.05);
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(42, 82, 152, 0.25);
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar, .sidebar, main {
+    animation: fadeIn 0.3s ease-in-out;
+}
