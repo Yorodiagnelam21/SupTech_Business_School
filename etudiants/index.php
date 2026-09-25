@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once __DIR__ . '/../config/database.php';
+require_role(['administrateur', 'scolarite']);
 
 function genererMatriculeEtudiant($connexion)
 {
@@ -197,16 +198,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     elseif ($action === 'supprimer') {
         $id_etudiant = intval(isset($_POST['id_etudiant']) ? $_POST['id_etudiant'] : 0);
 
-        $delete_query = "DELETE FROM etudiants WHERE id_etudiant = ?";
-        $delete_stmt = mysqli_prepare($connexion, $delete_query);
-        mysqli_stmt_bind_param($delete_stmt, "i", $id_etudiant);
+        mysqli_begin_transaction($connexion);
+        try {
+            $delete_related = mysqli_prepare($connexion, "DELETE p, n, i FROM inscriptions i
+                LEFT JOIN paiements p ON p.id_inscription = i.id_inscription
+                LEFT JOIN notes n ON n.id_inscription = i.id_inscription
+                WHERE i.id_etudiant = ?");
+            mysqli_stmt_bind_param($delete_related, "i", $id_etudiant);
+            if (!mysqli_stmt_execute($delete_related)) {
+                throw new Exception(mysqli_error($connexion));
+            }
+            mysqli_stmt_close($delete_related);
 
-        if (mysqli_stmt_execute($delete_stmt)) {
+            $delete_user = mysqli_prepare($connexion, "DELETE FROM utilisateurs WHERE id_etudiant = ?");
+            mysqli_stmt_bind_param($delete_user, "i", $id_etudiant);
+            mysqli_stmt_execute($delete_user);
+            mysqli_stmt_close($delete_user);
+
+            $delete_stmt = mysqli_prepare($connexion, "DELETE FROM etudiants WHERE id_etudiant = ?");
+            mysqli_stmt_bind_param($delete_stmt, "i", $id_etudiant);
+            if (!mysqli_stmt_execute($delete_stmt)) {
+                throw new Exception(mysqli_error($connexion));
+            }
+            mysqli_stmt_close($delete_stmt);
+            mysqli_commit($connexion);
             $message_success = "Étudiant supprimé avec succès.";
-        } else {
+        } catch (Exception $e) {
+            mysqli_rollback($connexion);
             $message_error = "Erreur lors de la suppression de l'étudiant.";
         }
-        mysqli_stmt_close($delete_stmt);
     }
 }
 

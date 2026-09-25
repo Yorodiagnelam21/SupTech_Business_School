@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur', 'scolarite']);
 
 $query = "SELECT p.id_paiement, e.nom, e.prenom, c.nom AS classe,
                  p.montant_paye, p.montant_total, p.date_paiement, p.mode_paiement

@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur', 'scolarite']);
 
 $message_success = '';
 $message_error = '';
@@ -29,18 +30,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$jour || !$heure_debut || !$heure_fin || !$id_salle || !$id_classe || !$id_enseignant || !$id_module || !$id_annee) {
             $message_error = "Tous les champs sont obligatoires.";
+        } elseif ($heure_fin <= $heure_debut) {
+            $message_error = "L'heure de fin doit être postérieure à l'heure de début.";
         } else {
-            $insert_query = "INSERT INTO emploi_temps (jour, heure_debut, heure_fin, id_salle, id_classe, id_enseignant, id_module, id_annee) 
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            $insert_stmt = mysqli_prepare($connexion, $insert_query);
-            mysqli_stmt_bind_param($insert_stmt, "sssiiiii", $jour, $heure_debut, $heure_fin, $id_salle, $id_classe, $id_enseignant, $id_module, $id_annee);
+            $module_class_stmt = mysqli_prepare($connexion, "SELECT id_module FROM modules WHERE id_module = ? AND id_classe = ? LIMIT 1");
+            mysqli_stmt_bind_param($module_class_stmt, "ii", $id_module, $id_classe);
+            mysqli_stmt_execute($module_class_stmt);
+            $module_class = mysqli_stmt_get_result($module_class_stmt);
+            mysqli_stmt_close($module_class_stmt);
 
-            if (mysqli_stmt_execute($insert_stmt)) {
-                $message_success = "Séance ajoutée avec succès.";
+            if (mysqli_num_rows($module_class) === 0) {
+                $message_error = "Le module sélectionné n'appartient pas à la classe choisie.";
             } else {
-                $message_error = "Erreur lors de l'ajout: " . mysqli_error($connexion);
+            $collision_query = "SELECT 1 FROM emploi_temps
+                                WHERE jour = ? AND id_annee = ?
+                                  AND heure_debut < ? AND heure_fin > ?
+                                  AND (id_salle = ? OR id_enseignant = ? OR id_classe = ?)
+                                LIMIT 1";
+            $collision_stmt = mysqli_prepare($connexion, $collision_query);
+            mysqli_stmt_bind_param($collision_stmt, "sissiii", $jour, $id_annee, $heure_fin, $heure_debut, $id_salle, $id_enseignant, $id_classe);
+            mysqli_stmt_execute($collision_stmt);
+            $collision = mysqli_stmt_get_result($collision_stmt);
+            mysqli_stmt_close($collision_stmt);
+
+            if (mysqli_num_rows($collision) > 0) {
+                $message_error = "Collision détectée : la salle, l'enseignant ou la classe est déjà occupé(e) sur ce créneau.";
+            } else {
+                $insert_query = "INSERT INTO emploi_temps (jour, heure_debut, heure_fin, id_salle, id_classe, id_enseignant, id_module, id_annee)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $insert_stmt = mysqli_prepare($connexion, $insert_query);
+                mysqli_stmt_bind_param($insert_stmt, "sssiiiii", $jour, $heure_debut, $heure_fin, $id_salle, $id_classe, $id_enseignant, $id_module, $id_annee);
+
+                if (mysqli_stmt_execute($insert_stmt)) {
+                    $message_success = "Séance ajoutée avec succès.";
+                } else {
+                    $message_error = "Erreur lors de l'ajout: " . mysqli_error($connexion);
+                }
+                mysqli_stmt_close($insert_stmt);
             }
-            mysqli_stmt_close($insert_stmt);
+            }
         }
     }
 
@@ -54,19 +82,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$id_seance || !$jour || !$heure_debut || !$heure_fin || !$id_salle || !$id_classe) {
             $message_error = "Données invalides.";
+        } elseif ($heure_fin <= $heure_debut) {
+            $message_error = "L'heure de fin doit être postérieure à l'heure de début.";
         } else {
-            $update_query = "UPDATE emploi_temps 
-                            SET jour = ?, heure_debut = ?, heure_fin = ?, id_salle = ?, id_classe = ? 
-                            WHERE id_seance = ?";
-            $update_stmt = mysqli_prepare($connexion, $update_query);
-            mysqli_stmt_bind_param($update_stmt, "sssiii", $jour, $heure_debut, $heure_fin, $id_salle, $id_classe, $id_seance);
+            $current_query = "SELECT id_enseignant, id_annee FROM emploi_temps WHERE id_seance = ? LIMIT 1";
+            $current_stmt = mysqli_prepare($connexion, $current_query);
+            mysqli_stmt_bind_param($current_stmt, "i", $id_seance);
+            mysqli_stmt_execute($current_stmt);
+            $current = mysqli_fetch_assoc(mysqli_stmt_get_result($current_stmt));
+            mysqli_stmt_close($current_stmt);
 
-            if (mysqli_stmt_execute($update_stmt)) {
-                $message_success = "Séance modifiée avec succès.";
+            if (!$current) {
+                $message_error = "Séance introuvable.";
             } else {
-                $message_error = "Erreur lors de la modification: " . mysqli_error($connexion);
+                $collision_query = "SELECT 1 FROM emploi_temps
+                                    WHERE id_seance <> ? AND jour = ? AND id_annee = ?
+                                      AND heure_debut < ? AND heure_fin > ?
+                                      AND (id_salle = ? OR id_enseignant = ? OR id_classe = ?)
+                                    LIMIT 1";
+                $collision_stmt = mysqli_prepare($connexion, $collision_query);
+                mysqli_stmt_bind_param($collision_stmt, "isissiii", $id_seance, $jour, $current['id_annee'], $heure_fin, $heure_debut, $id_salle, $current['id_enseignant'], $id_classe);
+                mysqli_stmt_execute($collision_stmt);
+                $collision = mysqli_stmt_get_result($collision_stmt);
+                mysqli_stmt_close($collision_stmt);
+
+                if (mysqli_num_rows($collision) > 0) {
+                    $message_error = "Collision détectée : la salle, l'enseignant ou la classe est déjà occupé(e) sur ce créneau.";
+                } else {
+                    $update_query = "UPDATE emploi_temps
+                                    SET jour = ?, heure_debut = ?, heure_fin = ?, id_salle = ?, id_classe = ?
+                                    WHERE id_seance = ?";
+                    $update_stmt = mysqli_prepare($connexion, $update_query);
+                    mysqli_stmt_bind_param($update_stmt, "sssiii", $jour, $heure_debut, $heure_fin, $id_salle, $id_classe, $id_seance);
+
+                    if (mysqli_stmt_execute($update_stmt)) {
+                        $message_success = "Séance modifiée avec succès.";
+                    } else {
+                        $message_error = "Erreur lors de la modification: " . mysqli_error($connexion);
+                    }
+                    mysqli_stmt_close($update_stmt);
+                }
             }
-            mysqli_stmt_close($update_stmt);
         }
     }
 
@@ -119,14 +175,7 @@ $enseignants = mysqli_fetch_all(mysqli_query($connexion, $enseignants_query), MY
 $modules_query = "SELECT id_module, nom FROM modules ORDER BY nom";
 $modules = mysqli_fetch_all(mysqli_query($connexion, $modules_query), MYSQLI_ASSOC);
 
-$niveaux_annee = ['L1', 'L2', 'L3', 'M1', 'M2'];
-foreach ($niveaux_annee as $niveau_annee) {
-    $niveau_annee_echappe = mysqli_real_escape_string($connexion, $niveau_annee);
-    mysqli_query($connexion, "INSERT IGNORE INTO annees_universitaires (libelle, date_debut, date_fin, active)
-                              VALUES ('$niveau_annee_echappe', '2025-09-01', '2026-06-30', 0)");
-}
-
-$annees_query = "SELECT id_annee, libelle FROM annees_universitaires WHERE libelle IN ('L1', 'L2', 'L3', 'M1', 'M2') ORDER BY FIELD(libelle, 'L1', 'L2', 'L3', 'M1', 'M2')";
+$annees_query = "SELECT id_annee, libelle FROM annees_universitaires ORDER BY date_debut DESC, libelle DESC";
 $annees = mysqli_fetch_all(mysqli_query($connexion, $annees_query), MYSQLI_ASSOC);
 ?>
 

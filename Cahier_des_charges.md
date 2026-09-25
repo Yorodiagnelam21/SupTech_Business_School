@@ -87,6 +87,7 @@ Réalisation : projet académique individuel (Licence Informatique de Gestion), 
 
 - Langage serveur : PHP (procédural, mysqli avec requêtes préparées).
 - Base de données : MySQL/MariaDB, 13 tables (voir MCD/MLD).
+- Le modèle distingue l'année universitaire (`2025-2026`) du niveau de la classe (`L1`, `L2`, `L3`, `M1`, `M2`).
 - Environnement de développement : XAMPP en local.
 - Frontend : Bootstrap 5, Bootstrap Icons, police Inter.
 - Génération de PDF : FPDF (bibliothèque PHP légère, sans dépendance Composer).

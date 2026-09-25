@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur', 'scolarite']);
 
 // ========== STATISTIQUES GLOBALES ==========
 
@@ -69,10 +70,14 @@ $distribution_result = mysqli_query($connexion, $distribution_query);
 $distribution = mysqli_fetch_assoc($distribution_result);
 
 // 9. Taux de paiement
-$paiement_query = "SELECT 
-                    SUM(CASE WHEN (montant_total - montant_paye) <= 0 THEN 1 ELSE 0 END) as complet,
-                    SUM(CASE WHEN (montant_total - montant_paye) > 0 THEN 1 ELSE 0 END) as partiel
-                   FROM paiements";
+$paiement_query = "SELECT
+                    SUM(CASE WHEN total_du - total_paye <= 0 THEN 1 ELSE 0 END) as complet,
+                    SUM(CASE WHEN total_du - total_paye > 0 THEN 1 ELSE 0 END) as partiel
+                   FROM (
+                       SELECT id_inscription, MAX(montant_total) AS total_du, SUM(montant_paye) AS total_paye
+                       FROM paiements
+                       GROUP BY id_inscription
+                   ) paiements_inscriptions";
 $paiement_result = mysqli_query($connexion, $paiement_query);
 $paiement_stats = mysqli_fetch_assoc($paiement_result);
 ?>

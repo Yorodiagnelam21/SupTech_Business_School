@@ -8,6 +8,11 @@ if (!isset($_SESSION['id_utilisateur'])) {
 require_once __DIR__ . '/../config/database.php';
 
 $id_enseignant = isset($_GET['id_enseignant']) ? (int) $_GET['id_enseignant'] : 0;
+if (!in_array($_SESSION['role_libelle'], ['administrateur', 'enseignant'], true)
+    || ($_SESSION['role_libelle'] === 'enseignant' && (int) $_SESSION['id_enseignant'] !== $id_enseignant)) {
+    header('Location: /gestion_academique/index.php');
+    exit;
+}
 if (!$id_enseignant) {
     header('Location: /gestion_academique/enseignants/');
     exit;

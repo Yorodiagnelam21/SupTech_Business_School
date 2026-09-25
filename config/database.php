@@ -19,6 +19,17 @@ if (!$connexion) {
 
 mysqli_set_charset($connexion, 'utf8mb4');
 
+if (!function_exists('require_role')) {
+    function require_role(array $roles)
+    {
+        $role = isset($_SESSION['role_libelle']) ? $_SESSION['role_libelle'] : '';
+        if (!in_array($role, $roles, true)) {
+            header('Location: /gestion_academique/index.php');
+            exit;
+        }
+    }
+}
+
 if (session_status() === PHP_SESSION_ACTIVE
     && isset($_SESSION['role_libelle'])
     && $_SESSION['role_libelle'] === 'etudiant') {

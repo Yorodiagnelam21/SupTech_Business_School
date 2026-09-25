@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur']);
 
 $message_success = '';
 $message_error = '';

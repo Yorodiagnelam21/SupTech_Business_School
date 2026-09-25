@@ -16,15 +16,19 @@ $id_etudiant_session = isset($_SESSION['id_etudiant']) ? $_SESSION['id_etudiant'
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/enseignants/profil.php?id_enseignant=<?= (int) $id_enseignant_session ?>"><i class="bi bi-person-lines-fill me-2"></i>Mon profil</a></li>
             <?php else: ?>
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/etudiants/"><i class="bi bi-people-fill me-2"></i>Étudiants</a></li>
-                <li class="nav-item"><a class="nav-link" href="/gestion_academique/enseignants/"><i class="bi bi-person-badge me-2"></i>Enseignants</a></li>
-                <?php if ($role_actuel === 'administrateur' || $role_actuel === 'scolarite'): ?>
+                <?php if ($role_actuel === 'administrateur'): ?>
+                    <li class="nav-item"><a class="nav-link" href="/gestion_academique/enseignants/"><i class="bi bi-person-badge me-2"></i>Enseignants</a></li>
                     <li class="nav-item"><a class="nav-link" href="/gestion_academique/classes/"><i class="bi bi-building me-2"></i>Classes</a></li>
                 <?php endif; ?>
-                <li class="nav-item"><a class="nav-link" href="/gestion_academique/modules/"><i class="bi bi-book-fill me-2"></i>Modules</a></li>
+                <?php if ($role_actuel === 'administrateur'): ?>
+                    <li class="nav-item"><a class="nav-link" href="/gestion_academique/modules/"><i class="bi bi-book-fill me-2"></i>Modules</a></li>
+                <?php endif; ?>
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/notes/"><i class="bi bi-file-earmark-text me-2"></i>Notes</a></li>
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/paiements/"><i class="bi bi-cash-coin me-2"></i>Paiements</a></li>
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/emplois/"><i class="bi bi-calendar3 me-2"></i>Emploi du temps</a></li>
-                <li class="nav-item"><a class="nav-link" href="/gestion_academique/salles/"><i class="bi bi-door-closed me-2"></i>Salles</a></li>
+                <?php if ($role_actuel === 'administrateur'): ?>
+                    <li class="nav-item"><a class="nav-link" href="/gestion_academique/salles/"><i class="bi bi-door-closed me-2"></i>Salles</a></li>
+                <?php endif; ?>
                 <li class="nav-item"><a class="nav-link" href="/gestion_academique/statistiques/"><i class="bi bi-pie-chart me-2"></i>Statistiques</a></li>
             <?php endif; ?>
         </ul>

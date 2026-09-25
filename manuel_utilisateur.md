@@ -14,6 +14,10 @@ Vous êtes automatiquement redirigé vers l'espace correspondant à votre rôle 
 
 En cas d'oubli de mot de passe, contactez l'administrateur système : il n'existe pas (à ce stade) de procédure de réinitialisation en libre-service.
 
+### 2.1 Création d'un compte étudiant
+
+Depuis la page de connexion, un étudiant déjà enregistré par la scolarité peut ouvrir son compte en fournissant son nom, son prénom, son matricule, son adresse e-mail et un mot de passe d'au moins six caractères. Le matricule doit correspondre exactement à une fiche existante et un seul compte peut être associé à cette fiche.
+
 ## 3. Le tableau de bord
 
 Après connexion (administrateur / scolarité), le tableau de bord affiche :
@@ -65,7 +69,7 @@ Vous pouvez laisser une note vide si elle n'a pas encore été évaluée ; la mo
 Menu : **Paiements** (administrateur, scolarité)
 
 - Sélectionnez l'inscription concernée, saisissez le montant versé, le montant total dû et le mode de paiement.
-- Le solde restant est calculé et affiché automatiquement.
+- Le solde restant est calculé automatiquement en tenant compte de tous les versements de l'inscription.
 - **Télécharger le reçu (PDF)** : cliquez sur l'icône PDF sur la ligne du paiement concerné pour générer et télécharger un reçu officiel (montant payé, montant total, reste à payer, date).
 - **Exporter la liste en Excel** : cliquez sur le bouton « Exporter Excel » en haut de la page pour obtenir un fichier `.csv` de tous les paiements.
 

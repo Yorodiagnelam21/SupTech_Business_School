@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur', 'scolarite']);
 
 $message_success = '';
 $message_error = '';
@@ -26,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$id_inscription || !$montant_paye || !$montant_total || !$date_paiement) {
             $message_error = "Les champs obligatoires doivent être remplis.";
+        } elseif ($montant_paye > $montant_total) {
+            $message_error = "Le montant versé ne peut pas dépasser le montant total dû.";
         } else {
             $insert_query = "INSERT INTO paiements (id_inscription, montant_paye, montant_total, date_paiement, mode_paiement) 
                              VALUES (?, ?, ?, ?, ?)";
@@ -50,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         if (!$id_paiement || !$montant_paye || !$montant_total) {
             $message_error = "Données invalides.";
+        } elseif ($montant_paye > $montant_total) {
+            $message_error = "Le montant versé ne peut pas dépasser le montant total dû.";
         } else {
             $update_query = "UPDATE paiements 
                             SET montant_paye = ?, montant_total = ?, date_paiement = ?, mode_paiement = ? 
@@ -87,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 // ========== RÉCUPÉRATION DONNÉES ==========
-$query = "SELECT p.id_paiement, p.montant_paye, p.montant_total, p.date_paiement, p.mode_paiement, 
+$query = "SELECT p.id_paiement, p.montant_paye, p.montant_total, p.date_paiement, p.mode_paiement,
+                 p.montant_total - (SELECT COALESCE(SUM(p2.montant_paye), 0) FROM paiements p2 WHERE p2.id_inscription = p.id_inscription) AS reste,
                  i.id_inscription, e.nom, e.prenom, c.nom as classe
           FROM paiements p
           JOIN inscriptions i ON p.id_inscription = i.id_inscription
@@ -173,7 +179,7 @@ $inscriptions = mysqli_fetch_all($inscriptions_result, MYSQLI_ASSOC);
                             <tbody>
                                 <?php foreach (mysqli_fetch_all($result, MYSQLI_ASSOC) as $paiement): ?>
                                     <?php 
-                                        $reste = $paiement['montant_total'] - $paiement['montant_paye'];
+                                        $reste = max(0, (float) $paiement['reste']);
                                         $couleur_reste = $reste <= 0 ? 'bg-success' : ($reste < $paiement['montant_total'] * 0.3 ? 'bg-warning' : 'bg-danger');
                                     ?>
                                     <tr>

@@ -10,6 +10,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 
 require_once '../config/database.php';
 require_once '../libs/fpdf/fpdf.php';
+require_role(['administrateur', 'scolarite', 'etudiant']);
 
 $id_inscription = intval(isset($_GET['id_inscription']) ? $_GET['id_inscription'] : 0);
 if (!$id_inscription) {

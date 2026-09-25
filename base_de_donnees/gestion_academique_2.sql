@@ -13,7 +13,7 @@ USE gestion_academique;
 -- ============================================================
 CREATE TABLE IF NOT EXISTS roles (
     id_role INT AUTO_INCREMENT PRIMARY KEY,
-    libelle VARCHAR(50) NOT NULL UNIQUE  -- 'administrateur', 'scolarite', 'enseignant'
+    libelle VARCHAR(50) NOT NULL UNIQUE  -- 'administrateur', 'scolarite', 'enseignant', 'etudiant'
 ) ENGINE=InnoDB;
 
 -- ============================================================
@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS annees_universitaires (
     date_fin DATE NOT NULL,
     active TINYINT(1) DEFAULT 0 -- année en cours
 ) ENGINE=InnoDB;
+
+INSERT IGNORE INTO annees_universitaires (libelle, date_debut, date_fin, active)
+VALUES ('2025-2026', '2025-09-01', '2026-06-30', 1);
 
 -- ============================================================
 -- 4. CLASSES

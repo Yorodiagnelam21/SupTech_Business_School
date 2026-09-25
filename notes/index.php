@@ -11,6 +11,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 require_once __DIR__ . '/../config/database.php';
 
 $role = isset($_SESSION['role_libelle']) ? $_SESSION['role_libelle'] : '';
+require_role(['administrateur', 'scolarite', 'enseignant']);
 $id_enseignant = isset($_SESSION['id_enseignant']) ? $_SESSION['id_enseignant'] : null;
 
 // Les enseignants ne voient que leurs modules

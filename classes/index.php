@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur']);
 
 $message_success = '';
 $message_error = '';
@@ -19,12 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'ajouter') {
         $nom = trim($_POST['nom'] ?? '');
-        $filiere = $nom;
+        $filiere = trim($_POST['filiere'] ?? '');
         $niveau = trim($_POST['niveau'] ?? '');
         $effectif_max = intval($_POST['effectif_max'] ?? 0);
 
-        if (!$nom || !$niveau || !$effectif_max) {
-            $message_error = "Les champs Nom de la classe, Niveau et Effectif maximum sont obligatoires.";
+        if (!$nom || !$filiere || !$niveau || !$effectif_max) {
+            $message_error = "Les champs Nom, Filière, Niveau et Effectif maximum sont obligatoires.";
         } else {
             $insert_query = "INSERT INTO classes (nom, filiere, niveau, effectif_max) VALUES (?, ?, ?, ?)";
             $insert_stmt = mysqli_prepare($connexion, $insert_query);
@@ -42,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     elseif ($action === 'modifier') {
         $id_classe = intval($_POST['id_classe'] ?? 0);
         $nom = trim($_POST['nom'] ?? '');
-        $filiere = $nom;
+        $filiere = trim($_POST['filiere'] ?? '');
         $niveau = trim($_POST['niveau'] ?? '');
         $effectif_max = intval($_POST['effectif_max'] ?? 0);
 
-        if (!$id_classe || !$nom || !$niveau || !$effectif_max) {
+        if (!$id_classe || !$nom || !$filiere || !$niveau || !$effectif_max) {
             $message_error = "Données invalides.";
         } else {
             $update_query = "UPDATE classes SET nom = ?, filiere = ?, niveau = ?, effectif_max = ? WHERE id_classe = ?";
@@ -54,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             mysqli_stmt_bind_param($update_stmt, "sssii", $nom, $filiere, $niveau, $effectif_max, $id_classe);
 
             if (mysqli_stmt_execute($update_stmt)) {
-                $message_success = "Classe modifiée avec succès. La filière correspond désormais au nom de la classe.";
+                $message_success = "Classe modifiée avec succès.";
             } else {
                 $message_error = "Erreur lors de la modification: " . mysqli_error($connexion);
             }
@@ -231,8 +232,12 @@ if (!$result) {
                     <div class="modal-body">
                         <input type="hidden" name="action" value="ajouter">
                         <div class="mb-3">
-                            <label class="form-label">Nom de la classe / filière <span class="text-danger">*</span></label>
+                            <label class="form-label">Nom de la classe <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="nom" placeholder="ex: Informatique" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Filière <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="filiere" placeholder="ex: Développement Web" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Niveau <span class="text-danger">*</span></label>
@@ -272,8 +277,12 @@ if (!$result) {
                         <input type="hidden" name="action" value="modifier">
                         <input type="hidden" name="id_classe" id="edit_id">
                         <div class="mb-3">
-                            <label class="form-label">Nom de la classe / filière <span class="text-danger">*</span></label>
+                            <label class="form-label">Nom de la classe <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="edit_nom" name="nom" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Filière <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_filiere" name="filiere" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Niveau <span class="text-danger">*</span></label>

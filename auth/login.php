@@ -118,13 +118,9 @@ if ($check_users) {
             }
         }
 
-        // 1. Années universitaires de niveau
+        // 1. Année universitaire de démonstration
         mysqli_query($connexion, "INSERT IGNORE INTO annees_universitaires (libelle, date_debut, date_fin, active) 
-                      VALUES ('L1', '2025-09-01', '2026-06-30', 1),
-                         ('L2', '2025-09-01', '2026-06-30', 0),
-                         ('L3', '2025-09-01', '2026-06-30', 0),
-                         ('M1', '2025-09-01', '2026-06-30', 0),
-                         ('M2', '2025-09-01', '2026-06-30', 0)");
+                  VALUES ('2025-2026', '2025-09-01', '2026-06-30', 1)");
         $res_annee = mysqli_query($connexion, "SELECT id_annee FROM annees_universitaires WHERE active = 1 LIMIT 1");
         $id_annee = ($r = mysqli_fetch_assoc($res_annee)) ? $r['id_annee'] : 1;
 

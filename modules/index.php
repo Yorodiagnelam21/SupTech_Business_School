@@ -9,6 +9,7 @@ if (!isset($_SESSION['id_utilisateur'])) {
 }
 
 require_once '../config/database.php';
+require_role(['administrateur']);
 
 $message_success = '';
 $message_error = '';
@@ -85,16 +86,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (!$id_module) {
             $message_error = "ID invalide.";
         } else {
-            $delete_query = "DELETE FROM modules WHERE id_module = ?";
-            $delete_stmt = mysqli_prepare($connexion, $delete_query);
-            mysqli_stmt_bind_param($delete_stmt, "i", $id_module);
+            mysqli_begin_transaction($connexion);
+            try {
+                $delete_assignments = mysqli_prepare($connexion, "DELETE FROM enseignant_module WHERE id_module = ?");
+                mysqli_stmt_bind_param($delete_assignments, "i", $id_module);
+                if (!mysqli_stmt_execute($delete_assignments)) {
+                    throw new Exception(mysqli_error($connexion));
+                }
+                mysqli_stmt_close($delete_assignments);
 
-            if (mysqli_stmt_execute($delete_stmt)) {
+                $delete_schedule = mysqli_prepare($connexion, "DELETE FROM emploi_temps WHERE id_module = ?");
+                mysqli_stmt_bind_param($delete_schedule, "i", $id_module);
+                if (!mysqli_stmt_execute($delete_schedule)) {
+                    throw new Exception(mysqli_error($connexion));
+                }
+                mysqli_stmt_close($delete_schedule);
+
+                $delete_notes = mysqli_prepare($connexion, "DELETE FROM notes WHERE id_module = ?");
+                mysqli_stmt_bind_param($delete_notes, "i", $id_module);
+                if (!mysqli_stmt_execute($delete_notes)) {
+                    throw new Exception(mysqli_error($connexion));
+                }
+                mysqli_stmt_close($delete_notes);
+
+                $delete_module = mysqli_prepare($connexion, "DELETE FROM modules WHERE id_module = ?");
+                mysqli_stmt_bind_param($delete_module, "i", $id_module);
+                if (!mysqli_stmt_execute($delete_module)) {
+                    throw new Exception(mysqli_error($connexion));
+                }
+                mysqli_stmt_close($delete_module);
+                mysqli_commit($connexion);
                 $message_success = "Module supprimé avec succès.";
-            } else {
-                $message_error = "Erreur lors de la suppression: " . mysqli_error($connexion);
+            } catch (Exception $e) {
+                mysqli_rollback($connexion);
+                $message_error = "Erreur lors de la suppression du module.";
             }
-            mysqli_stmt_close($delete_stmt);
         }
     }
 }
